@@ -1,0 +1,230 @@
+-- Services.
+local playersService = game:GetService("Players")
+local runService = game:GetService("RunService")
+local workspace = game:GetService("Workspace")
+
+local localPlayer = playersService.LocalPlayer
+
+local rayfieldReq = request({Url = "https://sirius.menu/rayfield", Method = "GET"})
+local Rayfield = loadstring(rayfieldReq.Body)()
+
+local Window = Rayfield:CreateWindow({
+	Name = "Garden Tower Defense | Ard Hub by Ardhi | v2.5.5",
+	LoadingTitle = "Ard Hub",
+	LoadingSubtitle = "Garden Tower Defense",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "ArdHubGTD",
+		FileName = "Config"
+	},
+	KeySystem = false
+})
+
+local MatchTab = Window:CreateTab("Match", "swords")
+local AutoModeTab = Window:CreateTab("Auto Mode", "bot")
+local MacroTab = Window:CreateTab("Macro", "file-code")
+local AntiBanTab = Window:CreateTab("Anti Ban", "shield")
+local WebhookTab = Window:CreateTab("Webhook", "bell")
+
+local state = {
+	match = {},
+	performance = {},
+	player = {},
+	lobby = {},
+	macro = {},
+	antiBan = {}
+}
+
+MatchTab:CreateSection("Match")
+
+MatchTab:CreateToggle({
+	Name = "Auto Skip Cutscene",
+	CurrentValue = false,
+	Callback = function(val) state.match.skipCutscene = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto Skip Wave",
+	CurrentValue = false,
+	Callback = function(val) state.match.skipWave = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto 2x Speed",
+	CurrentValue = false,
+	Callback = function(val) state.match.speed2x = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto 3x Speed",
+	CurrentValue = false,
+	Callback = function(val) state.match.speed3x = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto Ability",
+	CurrentValue = false,
+	Callback = function(val) state.match.autoAbility = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto Replay",
+	CurrentValue = false,
+	Callback = function(val) state.match.autoReplay = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto Return",
+	CurrentValue = false,
+	Callback = function(val) state.match.autoReturn = val end,
+})
+
+MatchTab:CreateSection("Performance")
+
+MatchTab:CreateToggle({
+	Name = "Disable 3D Rendering",
+	CurrentValue = false,
+	Callback = function(val)
+		state.performance.disable3d = val
+		runService:Set3dRenderingEnabled(not val)
+	end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Enable Low Performance",
+	CurrentValue = false,
+	Callback = function(val) state.performance.lowPerf = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Clean Old Maps",
+	CurrentValue = false,
+	Callback = function(val) state.performance.cleanMaps = val end,
+})
+
+MatchTab:CreateSection("Player")
+
+MatchTab:CreateToggle({
+	Name = "Auto Follow Enemy",
+	CurrentValue = false,
+	Callback = function(val) state.player.followEnemy = val end,
+})
+
+MatchTab:CreateToggle({
+	Name = "Auto Beggar",
+	CurrentValue = false,
+	Callback = function(val) state.player.autoBeggar = val end,
+})
+
+AutoModeTab:CreateSection("Lobby")
+
+AutoModeTab:CreateDropdown({
+	Name = "Difficulty",
+	Options = {"Normal", "Hard", "Nightmare"},
+	CurrentOption = {"Normal"},
+	MultipleOptions = false,
+	Callback = function(opt) state.lobby.difficulty = opt[1] end,
+})
+
+AutoModeTab:CreateToggle({
+	Name = "Auto Difficulty",
+	CurrentValue = false,
+	Callback = function(val) state.lobby.autoDifficulty = val end,
+})
+
+MacroTab:CreateSection("Record / Play")
+
+MacroTab:CreateToggle({
+	Name = "Record Macro",
+	CurrentValue = false,
+	Callback = function(val) state.macro.recording = val end,
+})
+
+MacroTab:CreateToggle({
+	Name = "Play Macro",
+	CurrentValue = false,
+	Callback = function(val) state.macro.playing = val end,
+})
+
+MacroTab:CreateToggle({
+	Name = "Teleport Before Placing",
+	CurrentValue = false,
+	Callback = function(val) state.macro.tpBeforePlace = val end,
+})
+
+MacroTab:CreateSection("Files")
+
+MacroTab:CreateDropdown({
+	Name = "Selected Macro",
+	Options = {"(kosong)"},
+	CurrentOption = {"(kosong)"},
+	MultipleOptions = false,
+	Callback = function(opt) state.macro.selectedFile = opt[1] end,
+})
+
+MacroTab:CreateButton({
+	Name = "Refresh List",
+	Callback = function() end,
+})
+
+MacroTab:CreateButton({
+	Name = "Delete",
+	Callback = function() end,
+})
+
+MacroTab:CreateInput({
+	Name = "New File Name",
+	PlaceholderText = "Name",
+	RemoveTextAfterFocusLost = false,
+	Callback = function(text) state.macro.newFileName = text end,
+})
+
+MacroTab:CreateButton({
+	Name = "Create Macro File",
+	Callback = function() end,
+})
+
+MacroTab:CreateSection("Import / Export")
+MacroTab:CreateInput({
+	Name = "Macro Link or JSON",
+	PlaceholderText = "Paste here...",
+	RemoveTextAfterFocusLost = false,
+	Callback = function(text) state.macro.importData = text end,
+})
+
+AntiBanTab:CreateSection("Anti Ban")
+
+AntiBanTab:CreateToggle({
+	Name = "Anti Ban",
+	CurrentValue = false,
+	Callback = function(val) state.antiBan.enabled = val end,
+})
+
+AntiBanTab:CreateSlider({
+	Name = "Placement Spread",
+	Range = {0.3, 2.0},
+	Increment = 0.1,
+	Suffix = "studs",
+	CurrentValue = 0.3,
+	Callback = function(val) state.antiBan.placementSpread = val end,
+})
+
+AntiBanTab:CreateSlider({
+	Name = "Walk Radius",
+	Range = {1, 15},
+	Increment = 1,
+	Suffix = "studs",
+	CurrentValue = 6,
+	Callback = function(val) state.antiBan.walkRadius = val end,
+})
+
+AntiBanTab:CreateSlider({
+	Name = "Micro Teleport Radius",
+	Range = {1, 8},
+	Increment = 1,
+	Suffix = "studs",
+	CurrentValue = 3,
+	Callback = function(val) state.antiBan.microTpRadius = val end,
+})
+
+Rayfield:LoadConfiguration()
